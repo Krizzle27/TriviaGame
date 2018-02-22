@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Harry Potter Trivia Game</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css?family=Acme" rel="stylesheet">
+
+</head>
+<style>
+body {
+    background-color: gold;
+    font-family: 'Acme', sans-serif;
+}
+.jumbotron {
+    background-color: maroon;
+    font-family: 'Acme', sans-serif;
+}
+	
+</style>
+<script>
+	$(document).ready(function(){
+    var count = 0;
+    var time = 31;
+    var isSelected = false;
+    var ticker;
+    var correct = 0;
+    var incorrect = 0;
+    var unanswered = 0;
+
+
+    var question = ["What creature is depicted in the emblem for Gryffindor house?",
+    "What is the incantation for the Summoning Charm?", "How are parcels and letters sent in the wizarding world?", "What do Harry and Ron crash into when they fly Arthur Weasley's Ford Anglia to Hogwarts?", "How many points is the Golden Snitch worth?",
+    "What is the only antidote to Basilisk's venom?", "What is the incantation to light a wand?", "Who destroyed the last remaining Horcrux?"];
+    var answer = ["A Lion", "Accio", "Owls", "The Whomping Willow", "150", "Phoenix Tears", "Lumos", "Neville Longbottom"];
+    var firstChoice = ["A Lion", "Avis", "Floo Network", "The Astronomy Tower", "50", "Phoenix Tears", "Alohomora", "Ginny Weasley"];
+    var secondChoice = ["A Badger", "Summuno", "Owls", "The Great Lake", "500", "Dragon's Blood", "Nox", "Neville Longbottom"];
+    var thirdChoice = ["A Snake", "Accio", "Broomsticks", "The Great Hall", "100", "Mandrake Draught", "Lumos", "Severus Snape"];
+    var fourthChoice = ["An Eagle", "Apparate", "Postmen", "The Whomping Willow", "150", "A Bezoard", "Obliviate", "Viktor Krum"];
+
+
+    function showHolders() {
+        $("#question-holder").show();
+        $("#choice-holder-1").show();
+        $("#choice-holder-2").show();
+        $("#choice-holder-3").show();
+        $("#choice-holder-4").show();
+    }
+    function hideHolders() {
+        $("#question-holder").hide();
+        $("#choice-holder-1").hide();
+        $("#choice-holder-2").hide();
+        $("#choice-holder-3").hide();
+        $("#choice-holder-4").hide();
+    }
+    function hideResults() {
+        $("#correct-holder").hide();
+        $("#incorrect-holder").hide();
+        $("#unanswered-holder").hide();
+        $("#restart-holder").hide();
+    }
+    function displayQuestion () {
+        hideResults();
+        $("#answer-holder").hide();
+        $("#image-holder").hide();
+        $("#time-holder").show();
+        showHolders();
+        $("#question-holder").html(question[count]);
+        $("#choice-holder-1").html(firstChoice[count]);
+        $("#choice-holder-2").html(secondChoice[count]);
+        $("#choice-holder-3").html(thirdChoice[count]);
+        $("#choice-holder-4").html(fourthChoice[count]);
+    
+    
+        $("#choice-holder-1").on("click", function() {
+            $(this).css("color", "gray");
+        },
+        function(){
+            $(this).css("color", "black");
+        });
+        $("#choice-holder-2").on("click", function() {
+            $(this).css("color", "gray");
+        },
+        function(){
+            $(this).css("color", "black");
+        });
+        $("#choice-holder-3").on("click", function() {
+            $(this).css("color", "gray");
+        },
+        function(){
+            $(this).css("color", "black");
+        });
+        $("#choice-holder-4").on("click", function() {
+            $(this).css("color", "gray");
+        },
+        function(){
+            $(this).css("color", "black");
+        });
+    }
+    $("#choice-holder-1").on("click", checkAnswer) 
+    $("#choice-holder-2").on("click", checkAnswer)
+    $("#choice-holder-3").on("click", checkAnswer)
+    $("#choice-holder-4").on("click", checkAnswer)
+
+
+    function checkAnswer() {
+
+        hideHolders();
+
+        if($(this).text() === answer[count]) {
+            stopTime();
+            isSelected = true;
+            $("#answer-holder").show();
+            $("#answer-holder").html("Right! The answer is: " + answer[count]);
+            displayImage();
+            correct++;
+            count++;
+        }
+        else {
+            stopTime();
+            isSelected = true;
+            $("#answer-holder").show();
+            $("#answer-holder").html("Wrong! The answer is: " + answer[count]);
+            displayImage();
+            incorrect++;
+            count++;
+        } 
+
+        checkGameEnd();  
+    }
+
+
+    function checkGameEnd() {
+        if(count === question.length) {
+            $("#time-holder").hide();
+            showResults();
+            count = 0;
+            $(".start").show();
+            $(".start").on("click", function() {
+                resetResults();
+                startGame();
+            });
+        }
+    }
+
+    function resetTime() {
+        time = 31;
+    }
+
+    function displayTime() {
+        time--;
+        $("#time-holder").html("Time remaining: " + time);
+      
+            if(time <= 0) {
+                hideHolders();
+                stopTime();
+                $("#answer-holder").show();
+                $("#answer-holder").html("Time is up! The answer is: " + answer[count]);
+                displayImage();
+                unanswered++;
+                count++;
+                checkGameEnd();
+            }
+    }
+
+    function startTime() {
+        clearInterval(ticker);
+        ticker = setInterval(displayTime, 1000);
+    }
+    function stopTime() {
+        clearInterval(ticker);
+        resetTime();
+        if(count < question.length - 1) {
+            setTimeout(startTime, 2000);
+            setTimeout(displayQuestion, 3000);
+        }
+    }
+
+    resetTime();
+
+
+    function displayImage() {
+        if(count === 0) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://www.hp-lexicon.org/wp-content/uploads/2015/08/shield_01-5B1-5D-200x0-c-default.jpg">');
+        }
+        else if(count === 1) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="data:image/png;base64,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">');
+        }
+        else if(count === 2) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://hips.hearstapps.com/cosmouk.cdnds.net/15/50/480x359/gallery-1449487321-harry-potter-hedwig-pic.jpg?resize=768:*">');
+        }
+        else if(count === 3) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://borgdotcom.files.wordpress.com/2011/10/harry-potter.jpg">');
+        }
+        else if(count === 4) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://vignette.wikia.nocookie.net/es.harrypotter/images/b/b6/Snitch.jpg/revision/latest?cb=20101209000313">');
+        }
+        else if(count === 5) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoJT03ctt0C3BPSpAjaxqg5_7TrN0WCbBRlg2H5er3G4h4WS0t">');
+        }
+        else if(count === 6) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://lh4.ggpht.com/6rSGuNFyMP3BN0sFGnVO-vvN5ERBWOXt5v9EziTRu_SN6BXsqHrUlIsA3NL14hVs5nJh=w300">');
+        }
+        else if(count === 7) {
+            $("#image-holder").show();
+            $("#image-holder").html('<img src="https://vignette.wikia.nocookie.net/harrypotter/images/0/04/Harry-potter-and-the-deathly-hallowspart-2.jpg/revision/latest/scale-to-width-down/350?cb=20161120035218">');
+        }
+    }
+    function showResults() {
+        $("#correct-holder").show();
+        $("#correct-holder").html("Correct: " + correct);
+        $("#incorrect-holder").show();
+        $("#incorrect-holder").html("Incorrect: " + incorrect);
+        $("#unanswered-holder").show();
+        $("#unanswered-holder").html("Unanswered: " + unanswered);
+        $("#restart-holder").show();
+        $("#restart-holder").html("Click Start above to play again!");
+    }
+
+
+    function resetResults() {
+        correct = 0;
+        incorrect = 0;
+        unanswered = 0;
+    }
+
+
+    function startGame() {
+        $(".start").hide();
+        startTime();
+        displayQuestion();
+    }
+
+
+  $(".start").on("click", function() {
+    startGame();
+  });
+});
+</script>
+<body>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1>Harry Potter Trivia Game</h1>
+    </div>
+        <row>
+            <div class="col-md-5"></div>
+            <div class="col-md-2">
+                <button type="button" class="btn start">Start</button>
+            </div>
+            <div class="col-md-5"></div>
+        </row>
+        <row>
+            <div class="col-md-12">
+                <h2><div id="time-holder"></div></h2>
+            </div>
+        </row>
+         <row>
+            <div class="col-md-12">
+                <h2><div id="question-holder"></div></h2>
+                <h2><div id="answer-holder"></div></h2>
+            </div>
+        </row>
+        <row>
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h2><div id="image-holder"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+        </row>
+        <row>
+            <div class="col-md-12">
+                <h2><div id="choice-holder-1"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h2><div id="correct-holder"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+        <row>
+            <div class="col-md-12">
+                <h2><div id="choice-holder-2"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h2><div id="incorrect-holder"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+        </row>
+        <row>
+            <div class="col-md-12">
+                <h2><div id="choice-holder-3"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h2><div id="unanswered-holder"></div></h2>
+            </div>
+            <div class="col-md-4"></div>
+        </row>
+        <row>
+            <div class="col-md-12">
+                <h2><div id="choice-holder-4"></div></h2>
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <h2><div id="restart-holder"></div></h2>
+            </div>
+            <div class="col-md-2"></div>
+        </row>
+</div>
+
+</body>
+</html>
